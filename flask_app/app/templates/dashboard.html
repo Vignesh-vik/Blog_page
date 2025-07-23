@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom: 30px;">
+    <h2>Welcome, {{ username }}!</h2>
+    <p>Glad to see you back. Here’s your dashboard overview.</p>
+</div>
+    <!-- <div class="card" style="margin-bottom: 30px;">
+        <form method="GET" action="{{ url_for('dashboard') }}" style="display: flex; align-items: center; gap: 12px;">
+            <label for="search_userid" style="font-size: 16px;">Search by UserNameabel>
+            <input type="number" id="search_userid" name="user_id" min="1" placeholder="Enter User ID" style="width: 120px;">
+            <button class="btn" type="submit">Search</button>
+            {% if request.args.get('user_name') %}
+            <a class="btn" href="{{ url_for('dashboard') }}" style="background: #fff; color: #4a6fa5; border: 1.5px solid #4a6fa5;">Clear</a>
+            {% endif %}
+        </form>
+    </div> -->
+<div class="card" style="margin-bottom: 30px;">
+    <h3>Add a New Blog Post</h3>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div style="margin-bottom: 10px;">
+            {{ form.title.label }}<br>
+            {{ form.title(size=40) }}
+        </div>
+        <div style="margin-bottom: 10px;">
+            {{ form.content.label }}<br>
+            {{ form.content(rows=4, cols=40) }}
+        </div>
+        {{ form.submit(class_="btn btn-primary") }}
+    </form>
+</div>
+<div>
+    <h3>All Blog Posts</h3>
+    {% for post in posts %}
+    <div class="card" style="margin-bottom: 20px; position: relative;">
+        <h4>{{ post.title }}</h4>
+        <small>By {{ post.author.username }} on {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+        <p>{{ post.content }}</p>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button class="btn like-btn" data-post-id="{{ post.id }}" data-liked="{% for like in post.likes %}{% if like.user_id == current_user.id %}1{% endif %}{% endfor %}">
+                {% set liked = false %}
+                {% for like in post.likes %}
+                    {% if like.user_id == current_user.id %}
+                        {% set liked = true %}
+                    {% endif %}
+                {% endfor %}
+                <span class="like-text">{% if liked %}❤️ Unlike{% else %}🤍 Like{% endif %}</span> (<span class="like-count">{{ post.likes|length }}</span>)
+            </button>
+            {% if post.author_id == current_user.id %}
+            <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" style="display:inline;">
+                <button class="btn" type="submit" style="background: #fff; color: #4a6fa5; border: 1.5px solid #4a6fa5; border-radius: 8px;" onclick="return confirm('Delete this blog post? This cannot be undone.');">Delete</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <p>No blog posts yet. Be the first to add one!</p>
+    {% endfor %}
+</div>
+<script>
+document.querySelectorAll('.like-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const postId = btn.getAttribute('data-post-id');
+        fetch(`/like_json/${postId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.querySelector('.like-count').textContent = data.like_count;
+            btn.querySelector('.like-text').textContent = data.liked ? '❤️ Unlike' : '🤍 Like';
+        });
+    });
+});
+</script>
+{% endblock %}

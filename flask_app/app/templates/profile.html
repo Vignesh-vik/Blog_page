@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 420px; margin: 48px auto; text-align: center; position: relative;">
+    <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 18px;">
+        <div class="profile-avatar">
+            <span style="font-size: 48px;">🧑‍💻</span>
+        </div>
+        <h2 style="margin-bottom: 0; color: #00fff7;">{{ username }}</h2>
+    </div>
+    <ul style="list-style: none; padding: 0; font-size: 18px; color: #e0e0e0; margin-bottom: 18px;">
+        <li style="margin-bottom: 10px;"><strong>Email:</strong> {{ email }}</li>
+        <li style="margin-bottom: 10px;"><strong>Blog Posts:</strong> {{ post_count }}</li>
+        <li style="margin-bottom: 10px;"><strong>Likes Given:</strong> {{ like_count }}</li>
+    </ul>
+    <div style="display: flex; justify-content: center; gap: 16px; margin-bottom: 18px;">
+        <a class="btn" href="{{ url_for('edit_profile') }}" style="background: #2b4a6f; color: #fff; border-radius: 8px; text-decoration: none;">Edit Profile</a>
+        <form method="POST" action="{{ url_for('delete_account') }}" style="display:inline;">
+            <button class="btn" type="submit" style="background: #fff; color: #4a6fa5; border: 1.5px solid #4a6fa5; border-radius: 8px;" onclick="return confirm('Are you sure you want to delete your account? This cannot be undone.');">Delete Account</button>
+        </form>
+    </div>
+    
+</div>
+<div class="card" style="max-width: 420px; margin: 24px auto;">
+    <h3 style="color: #ff00cc;">Recent Blog Posts</h3>
+    {% if recent_posts and recent_posts|length > 0 %}
+        <ul style="list-style: none; padding: 0;">
+        {% for post in recent_posts %}
+            <li style="margin-bottom: 10px;"><strong>{{ post.title }}</strong> <span style="color: #00fff7; font-size: 14px;">({{ post.timestamp.strftime('%Y-%m-%d') }})</span></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: #00fff7;">No posts yet.</p>
+    {% endif %}
+</div>
+<div class="card" style="max-width: 420px; margin: 24px auto;">
+    <h3 style="color: #ff00cc;">Recently Liked Posts</h3>
+    {% if liked_posts and liked_posts|length > 0 %}
+        <ul style="list-style: none; padding: 0;">
+        {% for post in liked_posts %}
+            <li style="margin-bottom: 10px;"><strong>{{ post.title }}</strong> <span style="color: #00fff7; font-size: 14px;">by {{ post.author.username }}</span></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p style="color: #00fff7;">No liked posts yet.</p>
+    {% endif %}
+</div>
+{% endblock %} 

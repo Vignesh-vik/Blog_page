@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 420px; margin: 48px auto;">
+    <h2>Edit Profile</h2>
+    <form method="POST">
+        <label for="username">Username</label><br>
+        <input type="text" id="username" name="username" value="{{ username }}" required><br>
+        <label for="email">Email</label><br>
+        <input type="email" id="email" name="email" value="{{ email }}" required><br>
+        <button class="btn" type="submit">Save Changes</button>
+        <a class="btn" href="{{ url_for('profile') }}" style="background: #fff; color: #4a6fa5; border: 1.5px solid #4a6fa5; margin-left: 10px;">Cancel</a>
+    </form>
+</div>
+{% endblock %} 

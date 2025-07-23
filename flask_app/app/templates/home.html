@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Home | Infosys Blog{% endblock %}
+{% block content %}
+<h2 style="margin-bottom: 24px;">Latest Blogs</h2>
+<div>
+    {% if posts and posts|length > 0 %}
+        {% for post in posts %}
+        <div class="card" style="margin-bottom: 20px;">
+            <h3>{{ post.title }}</h3>
+            <small>By {{ post.author.username }} on {{ post.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+            <p>{{ post.content }}</p>
+            {% if current_user.is_authenticated %}
+            <button class="btn like-btn" data-post-id="{{ post.id }}" data-liked="{% for like in post.likes %}{% if like.user_id == current_user.id %}1{% endif %}{% endfor %}">
+                {% set liked = false %}
+                {% for like in post.likes %}
+                    {% if like.user_id == current_user.id %}
+                        {% set liked = true %}
+                    {% endif %}
+                {% endfor %}
+                <span class="like-text">{% if liked %}❤️ Unlike{% else %}🤍 Like{% endif %}</span> (<span class="like-count">{{ post.likes|length }}</span>)
+            </button>
+            {% else %}
+                <span style="color: #888;">Likes: {{ post.likes|length }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No blog posts yet. Be the first to add one!</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.like-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const postId = btn.getAttribute('data-post-id');
+        fetch(`/like_json/${postId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            btn.querySelector('.like-count').textContent = data.like_count;
+            btn.querySelector('.like-text').textContent = data.liked ? '❤️ Unlike' : '🤍 Like';
+        });
+    });
+});
+</script>
+{% endblock %} 
